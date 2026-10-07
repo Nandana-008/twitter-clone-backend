@@ -27,3 +27,23 @@ export const createTweet = async (input: CreateTweetInput) => {
 
   return tweet;
 };
+
+export const getTweetById = async (tweetId: string) => {
+  const tweet = await prisma.tweet.findUnique({
+    where: {
+      id: tweetId,
+    },
+    include: {
+      author: {
+        select: {
+          id: true,
+          username: true,
+          displayName: true,
+          avatarUrl: true,
+        },
+      },
+    },
+  });
+
+  return tweet;
+};
