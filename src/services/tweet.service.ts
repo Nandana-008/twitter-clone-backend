@@ -47,3 +47,23 @@ export const getTweetById = async (tweetId: string) => {
 
   return tweet;
 };
+
+export const getAllTweets = async () => {
+  const tweets = await prisma.tweet.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
+    include: {
+      author: {
+        select: {
+          id: true,
+          username: true,
+          displayName: true,
+          avatarUrl: true,
+        },
+      },
+    },
+  });
+
+  return tweets;
+};

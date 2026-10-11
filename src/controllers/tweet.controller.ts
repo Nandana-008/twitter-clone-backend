@@ -1,5 +1,9 @@
 import type { Request, Response } from "express";
-import { createTweet, getTweetById } from "../services/tweet.service";
+import {
+  createTweet,
+  getTweetById,
+  getAllTweets,
+} from "../services/tweet.service";
 import { ApiError } from "../utils/ApiError";
 
 export const create = async (req: Request, res: Response) => {
@@ -30,5 +34,14 @@ export const getById = async (req: Request<{ id: string }>, res: Response) => {
   return res.status(200).json({
     success: true,
     data: tweet,
+  });
+};
+
+export const getAll = async (req: Request, res: Response) => {
+  const tweets = await getAllTweets();
+
+  return res.status(200).json({
+    success: true,
+    data: tweets,
   });
 };
