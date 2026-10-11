@@ -48,11 +48,13 @@ export const getTweetById = async (tweetId: string) => {
   return tweet;
 };
 
-export const getAllTweets = async () => {
+export const getAllTweets = async (page: number, limit: number) => {
+  const skip = (page - 1) * limit;
+
   const tweets = await prisma.tweet.findMany({
-    orderBy: {
-      createdAt: "desc",
-    },
+    skip,
+    take: limit,
+    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
     include: {
       author: {
         select: {
