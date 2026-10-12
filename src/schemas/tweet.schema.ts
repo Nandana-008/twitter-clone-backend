@@ -15,3 +15,12 @@ export const getTweetsSchema = z.object({
     limit: z.coerce.number().int().max(50).default(10),
   }),
 });
+
+export const updateTweetSchema = z.object({
+  body: z.object({
+    content: z
+      .string()
+      .min(1, "Tweet cannot be empty")
+      .max(280, "Tweet cannot exceed 280 characters"),
+  }),
+});

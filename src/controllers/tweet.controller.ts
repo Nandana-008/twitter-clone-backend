@@ -4,6 +4,7 @@ import {
   getTweetById,
   getAllTweets,
   deleteTweet,
+  updateTweet,
 } from "../services/tweet.service";
 import { ApiError } from "../utils/ApiError";
 
@@ -59,5 +60,19 @@ export const remove = async (req: Request<{ id: string }>, res: Response) => {
   return res.status(200).json({
     success: true,
     message: "Tweet deleted successfully",
+  });
+};
+
+export const update = async (req: Request<{ id: string }>, res: Response) => {
+  const { id } = req.params;
+  const userId = res.locals.user.id;
+  const { content } = req.body;
+
+  const tweet = await updateTweet(id, userId, content);
+
+  return res.status(200).json({
+    success: true,
+    message: "Tweet updated successfully",
+    data: tweet,
   });
 };

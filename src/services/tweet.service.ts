@@ -92,3 +92,44 @@ export const deleteTweet = async (tweetId: string, userId: string) => {
     },
   });
 };
+
+export const updateTweet = async (
+  tweetId: string,
+  userId: string,
+  content: string,
+) => {
+  const tweet = await prisma.tweet.findUnique({
+    where: {
+      id: tweetId,
+    },
+  });
+
+  if (!tweet) {
+    throw new ApiError(404, "Tweet not found.");
+  }
+
+  if (tweet.authorId !== userId) {
+    throw new ApiError(403, "You cannot edit this tweet");
+  }
+
+  const updatedTweet = await prisma.tweet.update({
+    where: {
+      id: tweetId,
+    },
+    data: {
+      content,
+    },
+    include: {
+      author: {
+        select: {
+          id: true,
+          username: true,
+          displayName: true,
+          avatarUrl: true,
+        },
+      },
+    },
+  });
+
+  return updatedTweet;
+};
