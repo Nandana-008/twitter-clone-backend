@@ -3,6 +3,7 @@ import {
   createTweet,
   getTweetById,
   getAllTweets,
+  deleteTweet,
 } from "../services/tweet.service";
 import { ApiError } from "../utils/ApiError";
 
@@ -46,5 +47,17 @@ export const getAll = async (req: Request, res: Response) => {
   return res.status(200).json({
     success: true,
     data: tweets,
+  });
+};
+
+export const remove = async (req: Request<{ id: string }>, res: Response) => {
+  const { id } = req.params;
+  const userId = res.locals.user.id;
+
+  await deleteTweet(id, userId);
+
+  return res.status(200).json({
+    success: true,
+    message: "Tweet deleted successfully",
   });
 };

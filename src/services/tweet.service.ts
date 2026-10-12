@@ -1,4 +1,5 @@
 import prisma from "../lib/prisma";
+import { ApiError } from "../utils/ApiError";
 
 interface CreateTweetInput {
   authorId: string;
@@ -68,4 +69,26 @@ export const getAllTweets = async (page: number, limit: number) => {
   });
 
   return tweets;
+};
+
+export const deleteTweet = async (tweetId: string, userId: string) => {
+  const tweet = await prisma.tweet.findUnique({
+    where: {
+      id: tweetId,
+    },
+  });
+
+  if (!tweet) {
+    throw new ApiError(404, "Tweet not found");
+  }
+
+  if (tweet.authorId !== userId) {
+    throw new ApiError(404, "You cannot delete this tweet");
+  }
+
+  await prisma.tweet.delete({
+    where: {
+      id: tweetId,
+    },
+  });
 };
