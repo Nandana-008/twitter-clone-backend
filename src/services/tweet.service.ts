@@ -33,6 +33,7 @@ export const getTweetById = async (tweetId: string) => {
   const tweet = await prisma.tweet.findUnique({
     where: {
       id: tweetId,
+      deletedAt: null,
     },
     include: {
       author: {
@@ -46,6 +47,10 @@ export const getTweetById = async (tweetId: string) => {
     },
   });
 
+  if (!tweet) {
+    throw new ApiError(404, "Tweet not found")
+  }
+
   return tweet;
 };
 
@@ -56,6 +61,9 @@ export const getAllTweets = async (page: number, limit: number) => {
     skip,
     take: limit,
     orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+    where: {
+      deletedAt: null,
+    },
     include: {
       author: {
         select: {
@@ -75,6 +83,7 @@ export const deleteTweet = async (tweetId: string, userId: string) => {
   const tweet = await prisma.tweet.findUnique({
     where: {
       id: tweetId,
+      deletedAt: null,
     },
   });
 
@@ -83,12 +92,16 @@ export const deleteTweet = async (tweetId: string, userId: string) => {
   }
 
   if (tweet.authorId !== userId) {
-    throw new ApiError(404, "You cannot delete this tweet");
+    throw new ApiError(403, "You cannot delete this tweet");
   }
 
-  await prisma.tweet.delete({
+  await prisma.tweet.update({
     where: {
       id: tweetId,
+      deletedAt: null,
+    },
+    data: {
+      deletedAt: new Date(),
     },
   });
 };
@@ -101,6 +114,7 @@ export const updateTweet = async (
   const tweet = await prisma.tweet.findUnique({
     where: {
       id: tweetId,
+      deletedAt: null,
     },
   });
 
@@ -115,6 +129,7 @@ export const updateTweet = async (
   const updatedTweet = await prisma.tweet.update({
     where: {
       id: tweetId,
+      deletedAt: null,
     },
     data: {
       content,
