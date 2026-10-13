@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import authRouter from "./routes/auth.route";
 import tweetRouter from "./routes/tweet.route";
+import likeRouter from "./routes/like.route";
 import { errorMiddleware } from "./middlewears/error.middlewear";
 
 const app = express();
@@ -19,6 +20,7 @@ app.get("/", (req, res) => {
 //routes
 app.use("/auth", authRouter);
 app.use("/tweets", tweetRouter);
+app.use("/tweets", likeRouter);
 
 //Global error handler
 app.use(errorMiddleware);
