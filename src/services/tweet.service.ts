@@ -36,6 +36,11 @@ export const getTweetById = async (tweetId: string) => {
       deletedAt: null,
     },
     include: {
+      _count: {
+        select: {
+          likes: true,
+        },
+      },
       author: {
         select: {
           id: true,
@@ -48,10 +53,15 @@ export const getTweetById = async (tweetId: string) => {
   });
 
   if (!tweet) {
-    throw new ApiError(404, "Tweet not found")
+    throw new ApiError(404, "Tweet not found");
   }
 
-  return tweet;
+  const { _count, ...rest } = tweet;
+
+  return {
+    ...rest,
+    totalLikes: _count.likes,
+  };
 };
 
 export const getAllTweets = async (page: number, limit: number) => {
@@ -65,6 +75,11 @@ export const getAllTweets = async (page: number, limit: number) => {
       deletedAt: null,
     },
     include: {
+      _count: {
+        select: {
+          likes: true,
+        },
+      },
       author: {
         select: {
           id: true,
@@ -76,7 +91,14 @@ export const getAllTweets = async (page: number, limit: number) => {
     },
   });
 
-  return tweets;
+  return tweets.map((tweet) => {
+    const { _count, ...rest } = tweet;
+
+    return {
+      ...rest,
+      totalLikes: _count.likes,
+    };
+  });
 };
 
 export const deleteTweet = async (tweetId: string, userId: string) => {
