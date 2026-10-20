@@ -29,7 +29,10 @@ export const createTweet = async (input: CreateTweetInput) => {
   return tweet;
 };
 
-export const getTweetById = async (tweetId: string) => {
+export const getTweetById = async (
+  tweetId: string,
+  viewerId: string | undefined,
+) => {
   const tweet = await prisma.tweet.findUnique({
     where: {
       id: tweetId,
@@ -39,6 +42,12 @@ export const getTweetById = async (tweetId: string) => {
       _count: {
         select: {
           likes: true,
+        },
+      },
+      likes: {
+        where: viewerId ? { userId: viewerId } : { userId: { in: [] } },
+        select: {
+          userId: true,
         },
       },
       author: {
@@ -56,15 +65,20 @@ export const getTweetById = async (tweetId: string) => {
     throw new ApiError(404, "Tweet not found");
   }
 
-  const { _count, ...rest } = tweet;
+  const { _count, likes, ...rest } = tweet;
 
   return {
     ...rest,
     totalLikes: _count.likes,
+    isLiked: likes.length > 0,
   };
 };
 
-export const getAllTweets = async (page: number, limit: number) => {
+export const getAllTweets = async (
+  page: number,
+  limit: number,
+  viewerId: string | undefined,
+) => {
   const skip = (page - 1) * limit;
 
   const tweets = await prisma.tweet.findMany({
@@ -80,6 +94,12 @@ export const getAllTweets = async (page: number, limit: number) => {
           likes: true,
         },
       },
+      likes: {
+        where: viewerId ? { userId: viewerId } : { userId: { in: [] } },
+        select: {
+          userId: true,
+        },
+      },
       author: {
         select: {
           id: true,
@@ -92,11 +112,12 @@ export const getAllTweets = async (page: number, limit: number) => {
   });
 
   return tweets.map((tweet) => {
-    const { _count, ...rest } = tweet;
+    const { _count, likes, ...rest } = tweet;
 
     return {
       ...rest,
       totalLikes: _count.likes,
+      isLiked: likes.length > 0,
     };
   });
 };

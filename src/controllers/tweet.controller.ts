@@ -25,9 +25,10 @@ export const create = async (req: Request, res: Response) => {
 };
 
 export const getById = async (req: Request<{ id: string }>, res: Response) => {
+  const viewerId = res.locals.user?.id;
   const { id } = req.params;
 
-  const tweet = await getTweetById(id);
+  const tweet = await getTweetById(id, viewerId);
 
   if (!tweet) {
     throw new ApiError(404, "Tweet not found");
@@ -40,10 +41,11 @@ export const getById = async (req: Request<{ id: string }>, res: Response) => {
 };
 
 export const getAll = async (req: Request, res: Response) => {
+  const viewerId = res.locals.user?.id;
   const page = Number(req.query.page ?? 1);
   const limit = Number(req.query.limit ?? 10);
 
-  const tweets = await getAllTweets(page, limit);
+  const tweets = await getAllTweets(page, limit, viewerId);
 
   return res.status(200).json({
     success: true,
